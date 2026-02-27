@@ -353,6 +353,28 @@ header,
             
             /* 7. 右上角重置按钮移位 */
             #back-to-setup { top: 10px; right: 10px; padding: 3px 8px; font-size: 0.75rem; }
+            
+            /* 8. 修复顶部大盘走火入魔（重叠错位）问题 */
+            #dashboard-container {
+                flex-direction: column; /* 核心：从横向并排改为纵向堆叠 */
+                gap: 15px; /* 增加上下模块的间距 */
+                padding: 15px 10px; /* 缩小整体内边距 */
+            }
+            #dashboard-container > div {
+                width: 100%; /* 让每个模块独占一行 */
+            }
+            /* 修改中间"实时防御"模块的边框，去掉左右虚线，改为上下虚线分割 */
+            #dashboard-container > div:nth-child(2) {
+                border-left: none !important; 
+                border-right: none !important;
+                border-top: 1px dashed rgba(255,0,0,0.3); 
+                border-bottom: 1px dashed rgba(255,0,0,0.3);
+                padding: 15px 0 !important;
+            }
+            /* 稍微缩小手机端命盘数字的字号，防止溢出屏幕 */
+            #shattered-hearts-count {
+                font-size: 1.8rem !important;
+            }
         }
     </style>
 </head>

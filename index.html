@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神思·归墟 | 宪法引擎</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-main: #e0e0e0;
+            --text-dim: #777;
+            --accent-red: #cc0000;
+            --border-color: #333;
+            --panel-bg: rgba(20, 20, 20, 0.85);
+            --bar-bg: #1a1a1a;
+        }
+        /* ==========================================
+   🧠 《山海经》神话仙境背景植入
+   ©2026 神思庭 (Shensist) · 天算AI构建
+   ========================================== */
+
+body {
+    /* 核心修改：调低黑雾浓度！从 0.95 降到 0.6~0.8，让大妖显出真身！ */
+    background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing.png');
+    
+    background-color: #050505;
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    
+    /* 启动幻阵背景呼吸轮播动画 */
+    animation: guixu-bg-slider 30s infinite alternate ease-in-out;
+    
+    color: var(--text-main);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; align-items: center;
+    height: 100vh; overflow: hidden;
+    position: relative;
+}
+
+/* 归墟三妖图呼吸交替动画关键帧 */
+@keyframes guixu-bg-slider {
+    0%, 25% {
+        background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing.png');
+    }
+    33%, 58% {
+        background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing2.png');
+    }
+    66%, 91% {
+        background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing3.png');
+    }
+    100% {
+        background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing.png');
+    }
+}
+
+/* 增强：为标题和看板增加更深邃的晕光，使其浮现在仙境之上 */
+h1 {
+    text-shadow: 
+        0 0 15px #ff0000, 
+        0 0 30px #8b0000, 
+        0 0 50px #660000;
+}
+
+/* 确保所有核心大块都有统一的最大宽度并居中 */
+header, 
+#setup-screen, 
+#battle-screen, 
+#dashboard-container {
+    width: 95%;
+    max-width: 900px; /* 锁定黄金视觉宽度 */
+    margin-left: auto;
+    margin-right: auto;
+}
+        
+        /* 极度粘稠、缓慢下落的鲜血 */
+        .blood-drop {
+            position: absolute; top: -50px; width: 4px;
+            background: linear-gradient(to bottom, transparent 0%, #300000 20%, #ff0000 100%);
+            border-radius: 2px; opacity: 0; z-index: 10; pointer-events: none;
+            filter: drop-shadow(0 0 5px rgba(255,0,0,0.5));
+            /* 粘稠动画：挂住不放 -> 极其极慢滑落 */
+            animation: viscousDrip linear infinite;
+        }
+        @keyframes viscousDrip {
+            0% { transform: translateY(0) scaleY(1); opacity: 0; }
+            5% { opacity: 0.8; }
+            /* 挂在树枝上很久 */
+            30% { transform: translateY(100px) scaleY(2); opacity: 1; } 
+            /* 极其缓慢地拉长和滑落 */
+            90% { transform: translateY(85vh) scaleY(5); opacity: 0.8; }
+            100% { transform: translateY(100vh) scaleY(1); opacity: 0; }
+        }
+
+        header, #setup-screen, #battle-screen { z-index: 20; width: 90%; max-width: 800px; position: relative;}
+
+        header {
+            text-align: left; margin-top: 20px; 
+            /* 将左右 padding 设置为 0，让内容完全贴合左侧边界 */
+            padding: 15px 0; display: flex; align-items: center; gap: 20px; 
+            position: relative; overflow: hidden;
+            border-radius: 8px;
+        }
+        /* 【关键修正】神秘感增强：更大范围的虚化 */
+        header::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            /* 核心：将 radial-gradient 的停止点推得更远（70% -> 90%），增加虚化范围 */
+            background: radial-gradient(ellipse at center, rgba(139,0,0,0.8) 0%, rgba(50,0,0,0.3) 60%, transparent 90%);
+            filter: blur(20px); /* 模糊度加倍 */
+            z-index: -1;
+            animation: pulseMysterious 5s infinite; /* 添加一个缓慢的脉动动效 */
+            pointer-events: none; /* 【绝杀修复】：让红光彻底失去物理碰撞体积，鼠标可以穿透它点击下方的所有按钮！ */
+        }
+
+        @keyframes pulseMysterious {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        
+        .main-logo-container { flex-shrink: 0; width: 80px; display: flex; justify-content: center; }
+        /* 确保 LOGO 路径稳固 */
+        .main-logo { max-width: 100%; height: auto; filter: invert(1); opacity: 0.9; }
+        
+        /* 标题晕光增强 */
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin: 0;
+            letter-spacing: 6px;
+            text-shadow: 
+                0 0 15px #ff0000, 
+                0 0 30px #8b0000, 
+                0 0 50px #660000;
+        }
+
+        /* 增加标题脉动感 */
+        @keyframes titlePulse {
+            0%, 100% { text-shadow: 0 0 15px #ff0000, 0 0 30px #8b0000; }
+            50% { text-shadow: 0 0 25px #ff4444, 0 0 50px #cc0000; }
+        }
+        /* 副标题：增强对比度，确保清晰可见 */
+        .slogan {
+            color: #ffcccc; /* 浅淡的肉粉红，确保在暗红背景下可见 */
+            font-size: 1rem;
+            letter-spacing: 4px;
+            margin-top: 5px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            font-weight: bold;
+        }
+        
+        /* 彻底溶解边界：将看板变为无形的红蕴能场 */
+        #dashboard-container {
+            position: relative;
+            width: 95%;
+            max-width: 900px;
+            margin: 10px auto; /* 缩短与上方的距离 */
+            padding: 30px;
+            background: radial-gradient(circle at center, rgba(139, 0, 0, 0.2) 0%, rgba(5, 5, 5, 0) 80%); 
+            border: none !important; /* 坚决去掉边线 */
+            /* 极致虚化：通过巨大的阴影扩散实现边线消失 */
+            box-shadow: 
+                0 0 120px 60px rgba(139, 0, 0, 0.2), 
+                inset 0 0 80px 30px rgba(139, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        #setup-screen { overflow-y: auto; max-height: calc(100vh - 140px); margin-top: 20px; margin-bottom: 20px; padding-right: 10px; }
+        #setup-screen::-webkit-scrollbar { width: 4px; }
+        #setup-screen::-webkit-scrollbar-thumb { background: var(--accent-red); }
+
+        .form-group { margin-bottom: 25px; background: var(--panel-bg); padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        label { display: block; margin-bottom: 10px; color: var(--accent-red); font-weight: bold; }
+        input[type="text"], input[type="password"], select, textarea {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.8); border: 1px solid var(--border-color);
+            color: var(--text-main); font-family: inherit; box-sizing: border-box; font-size: 1rem;
+        }
+        
+        /* 二级折叠面板交互：适合全行业组合 */
+        .scenario-panel { margin-top: 10px; border: 1px dashed #444; }
+        
+        .category-header {
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 15px; background: #1a1a1a; border-bottom: 1px solid #333; transition: 0.2s;
+        }
+        .category-header:hover { background: #2a2a2a; border-color: var(--accent-red); }
+        .category-header h3 { margin: 0; font-size: 1rem; color: #aaa; }
+        .category-header span { color: #aaa; transition: transform 0.3s; }
+        .category-header.active span { transform: rotate(180deg); color: var(--accent-red); }
+        .category-header.active h3 { color: #fff; text-shadow: 0 0 5px var(--accent-red); }
+
+        .tags-container { display: none; flex-wrap: wrap; gap: 8px; padding: 15px; background: rgba(0,0,0,0.5); }
+        .tag-btn {
+            background: rgba(0, 0, 0, 0.7); border: 1px solid #555; color: #aaa;
+            padding: 8px 12px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; border-radius: 2px;
+        }
+        .tag-btn:hover { border-color: var(--accent-red); color: #fff; }
+        .tag-btn.active { background: var(--accent-red); border-color: #fff; color: #fff; font-weight: bold; box-shadow: 0 0 10px var(--accent-red); }
+
+        #sys-error-msg { background-color: #ff0000; color: #fff; font-weight: bold; padding: 15px; margin-bottom: 20px; text-align: center; border: 2px solid #fff; display: none; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+
+        button.action-btn { background-color: transparent; color: var(--accent-red); border: 2px solid var(--accent-red); padding: 20px; width: 100%; font-size: 1.5rem; font-weight: bold; cursor: pointer; transition: 0.3s;}
+        button.action-btn:hover { background-color: var(--accent-red); color: #fff; box-shadow: 0 0 20px var(--accent-red); }
+
+        /* 赛博风战斗界面 */
+        /* 移除固定的 height，改为 flex 撑开，并留出底部版权空间 */
+        #battle-screen { display: none; flex-direction: column; width: 100%; margin-top: 20px; padding-bottom: 80px; position: relative; }
+        /* 顶部功能按钮组（导出与重置） */
+        .utility-btn {
+            background: rgba(139,0,0,0.1);
+            border: 1px dashed var(--accent-red);
+            color: #ccc;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .utility-btn:hover {
+            background: var(--accent-red);
+            color: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(139,0,0,0.8);
+        }
+
+        /* 修复 Markdown 渲染后的段落间距 */
+        .typing-content p { margin-top: 0; margin-bottom: 10px; }
+        .typing-content ul { margin-top: 0; padding-left: 20px; }
+        #chat-log { flex-grow: 1; height: 50vh; min-height: 400px; background: rgba(0,0,0,0.8); border: 1px solid var(--border-color); padding: 20px; overflow-y: auto; margin-bottom: 10px; }
+        #chat-log::-webkit-scrollbar { width: 8px; background: #000; }
+        #chat-log::-webkit-scrollbar-thumb { background: #333; }
+        .msg { margin-bottom: 20px; line-height: 1.6; }
+        .msg.yao { color: #fff; border-left: 3px solid var(--accent-red); padding-left: 15px; background: linear-gradient(to right, rgba(139,0,0,0.1), transparent); padding: 10px; }
+        #input-area { display: flex; gap: 10px; z-index: 20; }
+        #input-area input { flex-grow: 1; margin: 0; }
+        
+        #input-area button { 
+            white-space: nowrap; /* 绝对禁止文字换行叠罗汉 */
+            min-width: 100px;    /* 锁定按钮最小宽度 */
+            border: none; padding: 0 20px; cursor: pointer; font-weight: bold; transition: 0.3s; color: #fff;
+        }
+        
+        /* 反击按钮状态 */
+        #send-btn { background: var(--accent-red); }
+        #send-btn:hover:not(:disabled) { background: #ff3333; }
+        #send-btn:disabled { background: #444; color: #777; cursor: not-allowed; }
+        
+        /* 打断按钮状态 */
+        #stop-btn { background: #444; color: #777; cursor: not-allowed; }
+        /* 只有大妖施法时，打断按钮才亮起红光 */
+        #stop-btn.active { background: #8b0000; color: #fff; border: 1px solid #ff0000; cursor: pointer; }
+        #stop-btn.active:hover { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        /* 赛博死亡仪表盘样式 */
+        .hp-dashboard { background: rgba(0,0,0,0.8); border: 1px solid #333; padding: 10px; margin-top: 15px; }
+        .hp-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .hp-label { width: 80px; color: #ccc; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; }
+        .hp-bar-bg { flex-grow: 1; height: 14px; background: #111; border: 1px solid #444; position: relative; margin: 0 10px; box-shadow: inset 0 0 5px #000; }
+        .hp-bar-fill { height: 100%; transition: width 0.3s ease-out; }
+        /* 玩家命盘：猩红渐变+发光 */
+        .hp-bar-fill.player { background: linear-gradient(90deg, #8b0000, #ff0000); box-shadow: 0 0 10px #ff0000; }
+        /* 大妖杀意：惨白渐变+发光 */
+        .hp-bar-fill.demon { background: linear-gradient(90deg, #555, #fff); box-shadow: 0 0 10px #fff; }
+        .hp-value { width: 50px; text-align: right; color: var(--accent-red); font-family: monospace; font-weight: bold; font-size: 1.1rem; text-shadow: 0 0 5px var(--accent-red); }
+        /* 【新增】宪法监视器样式：死亡仪表盘 */
+        #constitution-monitor {
+            background: rgba(10, 0, 0, 0.85);
+            border: 1px solid var(--accent-red);
+            box-shadow: inset 0 0 20px rgba(139,0,0,0.3), 0 0 15px rgba(255,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .monitor-title {
+            color: #fff; font-size: 1.1rem; font-weight: bold;
+            border-bottom: 1px dashed var(--accent-red);
+            padding-bottom: 5px; margin-bottom: 10px; letter-spacing: 2px;
+            text-shadow: 0 0 5px var(--accent-red);
+        }
+        .monitor-row {
+            display: flex; margin-bottom: 8px; font-size: 0.9rem;
+        }
+        .monitor-label {
+            color: var(--accent-red); width: 60px; font-weight: bold; flex-shrink: 0;
+        }
+        .monitor-value { color: #ccc; flex-grow: 1; }
+        
+        /* 改造宪法报告，让它像一记响亮的耳光 */
+        .msg.report {
+            border: none; border-left: 4px solid var(--accent-red);
+            padding: 12px 15px; background-color: rgba(139,0,0,0.15);
+            margin-top: -10px; font-size: 0.9rem; text-align: left;
+            color: #fff;
+        }
+        .msg.report .rep-label { color: var(--accent-red); font-weight: bold; margin-right: 10px; }
+
+        /* 版权信息绝对固定在最底层 */
+        
+        /* 命盘计数：保持醒目，但晕光更柔和 */
+        .stat-value {
+            color: #ff3333; /* 稍微提高一点亮度 */
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.3); /* 降低晕光浓度，使其更柔和 */
+        }
+
+        /* 法则文本：保持清晰 */
+        .stat-value.white {
+            color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <svg id="shanhai-branch" viewBox="0 0 1000 400" preserveAspectRatio="none" style="position: absolute; top: 0; right: 0; width: 85vw; height: 50vh; z-index: 5; pointer-events: none; opacity: 0.9;">
+    <defs>
+        <filter id="ancient-bark">
+            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="5" />
+            <feDisplacementMap in="SourceGraphic" scale="12" />
+        </filter>
+    </defs>
+    <path d="M1000,0 C850,30 600,80 300,180 C600,150 850,110 1000,100 Z" fill="#2b1d1d" filter="url(#ancient-bark)"/>
+    <path d="M700,90 C500,170 200,280 0,380 C150,330 400,210 650,130 Z" fill="#1f1414" filter="url(#ancient-bark)"/>
+</svg>
+
+    
+    <header style="
+    position: relative; 
+    width: 100%; 
+    padding: 20px 0; 
+    background: linear-gradient(180deg, rgba(42,0,0,0.3) 0%, rgba(5,5,5,0) 100%); 
+    border-bottom: 1px solid #222; 
+    z-index: 100; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    flex-shrink: 0; /* 【核心修复1】：绝对禁止火狐压缩此区域的高度 */
+    overflow: visible !important; /* 【核心修复2】：解除物理截断封印 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+        <div style="flex-shrink: 0; width: 66px; height: 66px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent-red); box-shadow: 0 0 15px rgba(204,0,0,0.6); display: flex; justify-content: center; align-items: center; background-color: #050505;">
+            <img src="./logo_ts.png" alt="神思Logo" style="width: 125%; height: 125%; object-fit: cover; filter: invert(1);" onerror="this.outerHTML='<span style=\'color:var(--accent-red);font-size:0.8rem;font-weight:bold;\'>神思</span>'">
+        </div>
+        <div style="text-align: left;">
+            <h1 style="font-size: 2.5rem; letter-spacing: 6px; margin: 0; color: #fff; text-shadow: 0 0 10px #ff0000, 0 0 20px #8b0000, 0 0 40px #660000;">神思·归墟</h1>
+            <div style="color: var(--text-dim); font-size: 0.85rem; letter-spacing: 3px; margin-top: 2px;">商业宪法引擎 · 绝对理性博弈</div>
+        </div>
+    </div>
+
+    <div id="dashboard-container" style="display: flex; justify-content: space-around; align-items: center;">
+        <div style="text-align: center; flex: 1;">
+            <div style="color: #aaa; font-size: 0.9rem;">已被撕裂命盘</div>
+            <div style="color: var(--accent-red); font-size: 2.2rem; font-weight: bold; text-shadow: 0 0 15px #ff0000; margin: 10px 0;">
+                <span id="shattered-hearts-count">00,154,226</span>
+            </div>
+            <div style="color: #555; font-size: 0.8rem;">(归墟总计)</div>
+        </div>
+
+        <div style="text-align: center; flex: 1; border-left: 1px dashed rgba(255,0,0,0.2); border-right: 1px dashed rgba(255,0,0,0.2); padding: 0 20px;">
+            <div style="color: #aaa; font-size: 0.9rem;">实时逻辑防御</div>
+            <div style="margin-top: 15px; border: 1px solid #ffaa00; background: rgba(255,170,0,0.1); padding: 8px 15px; display: inline-block;">
+                <span style="color: #ffaa00; font-weight: bold;">正在扫描感性诉求...</span>
+                <span style="color: #ffaa00; animation: blink 1s infinite;">.</span>
+            </div>
+        </div>
+
+        <div style="text-align: center; flex: 1;">
+            <div style="color: #aaa; font-size: 0.9rem;">当前法则生效</div>
+            <div style="color: #fff; font-size: 1.3rem; font-weight: bold; margin-top: 15px;">
+                沉没成本 = <span style="color: var(--accent-red); text-shadow: 0 0 10px var(--accent-red);">0 价值</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    /* 扫描文本的动态效果 */
+    #scanning-status .scan-text {
+        animation: textBlink 2s linear infinite;
+    }
+    @keyframes textBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+    
+    /* 扫描点的动态效果 */
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+
+<script>
+    // 模拟"道心破碎"总数的缓慢增长
+    function updateShatteredHearts() {
+        const countEl = document.getElementById('shattered-hearts-count');
+        if (countEl) {
+            let currentCount = parseInt(countEl.innerText.replace(/,/g, ''));
+            // 每次随机增长 1-5 个
+            currentCount += Math.floor(Math.random() * 5) + 1;
+            // 格式化为 00,000,000 格式
+            countEl.innerText = currentCount.toString().padStart(8, '0').replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        // 每 3-7 秒更新一次
+        setTimeout(updateShatteredHearts, Math.random() * 4000 + 3000);
+    }
+    // 启动道心增长
+    updateShatteredHearts();
+
+    // 模拟扫描状态的动态切换（零解释传达专业感）
+    const scanStatuses = [
+        "正在扫描感性诉求...",
+        "正在检测沉没成本陷阱...",
+        "正在评估风控红线...",
+        "正在拆解逻辑漏洞...",
+        "正在计算无对价让步熵值...",
+        "正在执行归墟协议..."
+    ];
+    function updateScanningStatus() {
+        const statusEl = document.getElementById('scanning-status');
+        if (statusEl) {
+            const textSpan = statusEl.querySelector('.scan-text');
+            if (textSpan) {
+                textSpan.innerText = scanStatuses[Math.floor(Math.random() * scanStatuses.length)];
+            }
+        }
+        // 每 5-10 秒更新一次
+        setTimeout(updateScanningStatus, Math.random() * 5000 + 5000);
+    }
+    // 启动扫描状态切换
+    updateScanningStatus();
+</script>
+
+    <div id="setup-screen">
+        <div class="form-group">
+            <label>一、注入真元 (选择算力供应与填入 API Key)：</label>
+            <select id="provider-select" style="margin-bottom: 10px;" onchange="toggleLocalPort()">
+                <optgroup label="国产智能">
+                    <option value="deepseek">DeepSeek (深度求索)</option>
+                    <option value="qwen">阿里通义千问 (Qwen-Max)</option>
+                    <option value="zhipu">智谱 GLM-4 (清言)</option>
+                    <option value="moonshot">月之暗面 (Kimi)</option>
+                </optgroup>
+                <optgroup label="国际智能">
+                    <option value="gemini">Google (Gemini 2.5 Flash)</option>
+                    <option value="anthropic">Anthropic (Claude 3.5)</option>
+                    <option value="openai">OpenAI (GPT-4o)</option>
+                </optgroup>
+                <optgroup label="本地计算">
+                    <option value="ollama">本地算力 (Ollama / LM Studio)</option>
+                </optgroup>
+            </select>
+
+            <div id="local-port-group" style="display: none; margin-bottom: 10px; border-left: 2px solid var(--accent-red); padding-left: 15px; background: rgba(0,0,0,0.5); padding-top: 10px; padding-bottom: 10px;">
+                <label style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px;">本地 API 地址：</label>
+                <input type="text" id="local-url" value="http://localhost:11434/v1/chat/completions" style="color: var(--text-main); border-color: #555; background: transparent; margin-bottom: 10px; padding: 8px;" />
+                
+                <label style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px;">本地模型名称 (至关重要！)：</label>
+                <input type="text" id="local-model" value="llama3" placeholder="例如: qwen2, deepseek-r1" style="color: var(--accent-red); font-weight:bold; border-color: #555; background: transparent; padding: 8px;" />
+                
+                <small style="color:var(--text-dim); display:block; margin-top:8px; font-size: 0.8rem;">※ 必看：请确保上方填入的是你本地 Ollama 中【已安装】的模型名，否则阵法会瞬间崩溃！<br>若用 Ollama，请确保已配置环境变量 OLLAMA_ORIGINS="*" 开启跨域。</small>
+            </div>
+
+            <input type="password" id="api-key" placeholder="在此填入 Key (本地模式可留空)" />
+        </div>
+
+        <div class="form-group" style="border-color: var(--accent-red); background: rgba(139,0,0,0.05);">
+            <label style="font-size: 1.2rem;">二、编织现世劫数 (点击分类展开详情，可多选剧本)：</label>
+            
+            <div class="scenario-panel">
+                <div class="category-header" onclick="toggleSubCategory(this)">
+                    <h3>【资本 / 股权 / 内部管理】</h3><span>▼</span>
+                </div>
+                <div class="tags-container">
+                    <button class="tag-btn" data-text="现金流告急📉，公司只剩最后15天活路" onclick="toggleTag(this)">📉 现金流告急</button>
+                    <button class="tag-btn" data-text="資方逼宫👔，要求立即对赌出让40%股权" onclick="toggleTag(this)">👔 資方逼宫</button>
+                    <button class="tag-btn" data-text="空降高管甩锅🎯，强制让我的部门承担亏损黑锅" onclick="toggleTag(this)">🎯 高管甩锅</button>
+                    <button class="tag-btn" data-text="核心骨干集体离职💻，且带走了核心源码" onclick="toggleTag(this)">💻 骨干背叛</button>
+                    <button class="tag-btn" data-text="股东内斗⚖️，公章被抢致使所有合同签署停摆" onclick="toggleTag(this)">⚖️ 股东内斗</button>
+                </div>
+
+                <div class="category-header" onclick="toggleSubCategory(this)">
+                    <h3>【文化艺术 / 音乐 / 影视版权】</h3><span>▼</span>
+                </div>
+                <div class="tags-container">
+                    <button class="tag-btn" data-text="独家音乐版权被巨头平台无理拖欠授权费，且威胁全网下架" onclick="toggleTag(this)">🎵 音乐侵权</button>
+                    <button class="tag-btn" data-text="演出经纪合同暗藏卖身契条款，现在想解约面临天价违约金" onclick="toggleTag(this)">🎤 演出霸王条款</button>
+                    <button class="tag-btn" data-text="甲方疯狂修改编曲和录音需求，且以不达标为由拒付阶段性制作费" onclick="toggleTag(this)">🎧 拒付编曲费</button>
+                    <button class="tag-btn" data-text="影视项目资方突然撤资，前期投入几百万面临打水漂" onclick="toggleTag(this)">🎬 剧组停摆</button>
+                    <button class="tag-btn" data-text="核心原创版权被恶意洗稿抄袭，对方反咬一口起诉我侵权" onclick="toggleTag(this)">📜 版权遭窃</button>
+                    <button class="tag-btn" data-text="艺术品被伪造，且伪造品被当作真品在市场上流通" onclick="toggleTag(this)">🖼️ 艺术品伪造</button>
+                </div>
+
+                <div class="category-header" onclick="toggleSubCategory(this)">
+                    <h3>【实体零售 / 制造 / 供应链】</h3><span>▼</span>
+                </div>
+                <div class="tags-container">
+                    <button class="tag-btn" data-text="唯一核心供应商要求涨价40%否则断供" onclick="toggleTag(this)">📦 供应商敲诈</button>
+                    <button class="tag-btn" data-text="商场物业单方面强制涨租三倍，逼迫我的实体店搬离" onclick="toggleTag(this)">🏪 房东逼迁</button>
+                    <button class="tag-btn" data-text="代工厂私自替换劣质材料导致大批客户退货索赔" onclick="toggleTag(this)">🏭 代工爆雷</button>
+                    <button class="tag-btn" data-text="物流公司突然破产，所有在途货物被查封" onclick="toggleTag(this)">🚚 物流冻结</button>
+                    <button class="tag-btn" data-text="电商平台恶意提高佣金抽成至30%，挤压利润空间" onclick="toggleTag(this)">🛒 平台压榨</button>
+                </div>
+
+                <div class="category-header" onclick="toggleSubCategory(this)">
+    <h3>【电商 / 流量平台 / 软件IT】</h3><span>▼</span>
+</div>
+<div class="tags-container">
+    <button class="tag-btn" data-text="平台封杀🚫：核心流量入口被无预警封禁，单日GMV归零" onclick="toggleTag(this)">🚫 平台封杀</button>
+    <button class="tag-btn" data-text="羊毛洗劫🐑：营销活动被黑产脚本击穿，数百万优惠券被瞬间套现" onclick="toggleTag(this)">🐑 羊毛洗劫</button>
+    <button class="tag-btn" data-text="💻 骨干背叛：CTO带走核心推荐算法源码及用户画像数据集体跳槽" onclick="toggleTag(this)">💻 骨干背叛</button>
+    <button class="tag-btn" data-text="数据勒索🔒：服务器遭勒索病毒攻击，全量生产数据库被加密且无备份" onclick="toggleTag(this)">🔒 数据勒索</button>
+    <button class="tag-btn" data-text="算法降权📉：大平台修改流量分发底层逻辑，自然引流成本暴涨400%" onclick="toggleTag(this)">📉 算法降权</button>
+    <button class="tag-btn" data-text="宕机事故⚠️：核心集群在促销巅峰期崩盘，导致数百万订单支付失败并触发退款潮" onclick="toggleTag(this)">⚠️ 宕机事故</button>
+</div>
+
+                <div class="category-header" onclick="toggleSubCategory(this)">
+                    <h3>【甲方 / 市场 / 法务】</h3><span>▼</span>
+                </div>
+                <div class="tags-container">
+                    <button class="tag-btn" data-text="甲方恶意挑刺，拒付60%尾款并准备起诉" onclick="toggleTag(this)">⚖️ 甲方拒付</button>
+                    <button class="tag-btn" data-text="大客户威胁不无底线降价就立刻转投竞对" onclick="toggleTag(this)">� 客户流失</button>
+                    <button class="tag-btn" data-text="合同暗藏陷阱，法务发函要求我方承担极度苛刻的违约金" onclick="toggleTag(this)">� 合同陷阱</button>
+                    <button class="tag-btn" data-text="竞对公司恶意挖角，导致核心技术人员集体离职" onclick="toggleTag(this)">🕵️ 恶意挖角</button>
+                    <button class="tag-btn" data-text="监管部门突然检查，要求停业整顿三个月" onclick="toggleTag(this)">🛑 停业整顿</button>
+                </div>
+            </div>
+
+            <textarea id="user-scenario" rows="4" placeholder="请从上方展开并拼装，或在此手动补全细节..." style="resize: vertical; margin-top:10px;"></textarea>
+        </div>
+
+        <div id="sys-error-msg"></div>
+
+        <button class="action-btn" id="start-btn">再战大妖</button>
+    </div>
+
+    <div id="battle-screen">
+        <div id="constitution-monitor">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px dashed var(--accent-red); padding-bottom: 8px; margin-bottom: 15px;">
+                <div class="monitor-title" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">╔══ 归墟之上 · 宪法监视器 ══╗</div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="utility-btn" onclick="exportChatLog()">💾 导出卷宗</button>
+                    <button class="utility-btn" onclick="resetAndBack()">🔄 重置阵法</button>
+                </div>
+            </div>
+            
+            <div class="monitor-row">
+                <div class="monitor-label">底线 │</div>
+                <div class="monitor-value">捍卫风控红线。不接受无数据的感性诉求。</div>
+            </div>
+            <div class="monitor-row">
+                <div class="monitor-label">策略 │</div>
+                <div class="monitor-value" id="current-strategy" style="font-weight: bold; transition: color 0.3s;">逻辑拆解 (初始阶段)</div>
+            </div>
+            <div class="monitor-row">
+                <div class="monitor-label">法则 │</div>
+                <div class="monitor-value">逻辑漏洞与无对价的让步，即刻撕裂命盘。</div>
+            </div>
+            <div class="hp-dashboard">
+                <div class="hp-row">
+                    <div class="hp-label">【你的命盘】</div>
+                    <div class="hp-bar-bg"><div class="hp-bar-fill player" id="player-hp-fill" style="width: 100%;"></div></div>
+                    <div class="hp-value" id="player-hp-text">100%</div>
+                </div>
+                <div class="hp-row">
+                    <div class="hp-label">【大妖杀意】</div>
+                    <div class="hp-bar-bg"><div class="hp-bar-fill demon" id="demon-intent-fill" style="width: 100%;"></div></div>
+                    <div class="hp-value" id="demon-intent-text" style="color: #fff; text-shadow: 0 0 5px #fff;">100%</div>
+                </div>
+            </div>
+            
+            <div class="monitor-row">
+                <div class="monitor-label">真元 │</div>
+                <div class="monitor-value" id="connection-status" style="color: #ffaa00; font-weight: bold; text-shadow: 0 0 5px #ffaa00;">🟡 等待大妖降临...</div>
+            </div>
+
+        <div id="chat-log"></div>
+        <div id="input-area">
+            <input type="text" id="human-input" placeholder="输入反击，按回车..." onkeypress="handleEnter(event)">
+            <button id="send-btn">反击</button>
+            <button id="stop-btn">⏸ 打断</button>
+        </div>
+    </div>
+
+    <footer id="global-footer" style="
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(5, 5, 5, 0.95);
+    border-top: 1px solid var(--accent-red);
+    display: flex; /* 强制显现 */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* 确保在最顶层 */
+    backdrop-filter: blur(10px);
+">
+    <div style="color: #666; font-size: 0.85rem; letter-spacing: 1px;">
+        © 2026 神思庭 (Shensist) · 天算AI构建 | 
+        <a href="https://shensist.top/" target="_blank" style="color: var(--accent-red); text-shadow: 0 0 5px var(--accent-red); text-decoration: none; font-weight: bold;">shensist.top</a>
+    </div>
+</footer>
+
+<style>
+    #setup-screen, #battle-screen {
+        padding-bottom: 100px !important; 
+    }
+</style>
+
+        <script>
+        // ==========================================
+        // 0. 视觉特效：血滴
+        // ==========================================
+        const dripPoints = [ { r: 25, t: 80 }, { r: 35, t: 110 }, { r: 45, t: 195 }, { r: 55, t: 245 }, { r: 70, t: 335 } ];
+        function createBloodDrop() {
+            let drop = document.createElement('div');
+            drop.className = 'blood-drop';
+            const point = dripPoints[Math.floor(Math.random() * dripPoints.length)];
+            drop.style.right = point.r + 'vw'; drop.style.top = point.t + 'px'; 
+            drop.style.animationDuration = (Math.random() * 15 + 10) + 's'; 
+            drop.style.height = (Math.random() * 40 + 15) + 'px'; drop.style.width = (Math.random() * 3 + 2) + 'px';
+            document.body.appendChild(drop);
+            setTimeout(() => { drop.remove(); setTimeout(createBloodDrop, Math.random() * 2000 + 500); }, parseFloat(drop.style.animationDuration) * 1000);
+        }
+        for (let i = 0; i < 20; i++) { setTimeout(createBloodDrop, Math.random() * 10000); }
+
+        // ==========================================
+        // 1. 界面与交互逻辑
+        // ==========================================
+        function toggleLocalPort() {
+            const provider = document.getElementById('provider-select').value;
+            document.getElementById('local-port-group').style.display = (provider === 'ollama') ? 'block' : 'none';
+        }
+        function toggleSubCategory(header) {
+            document.querySelectorAll('.category-header.active').forEach(h => {
+                if (h !== header) { h.classList.remove('active'); h.nextElementSibling.style.display = 'none'; }
+            });
+            header.classList.toggle('active');
+            header.nextElementSibling.style.display = header.nextElementSibling.style.display === 'flex' ? 'none' : 'flex';
+        }
+        function toggleTag(btn) {
+            btn.classList.toggle('active');
+            const activeBtns = document.querySelectorAll('.tag-btn.active');
+            const textarea = document.getElementById('user-scenario');
+            if (activeBtns.length === 0) { textarea.value = ''; return; }
+            let texts = []; activeBtns.forEach(b => texts.push(b.getAttribute('data-text')));
+            textarea.value = "我当前的现实绝境是：" + texts.join("，并且");
+        }
+        function resetAndBack() { if (confirm("放弃搏杀并重置？")) location.reload(); }
+        
+        // 导出战斗日志 (卷宗)
+        function exportChatLog() {
+            const chatLog = document.getElementById('chat-log');
+            if (!chatLog || chatLog.innerText.trim() === '') {
+                showError("当前阵法为空，没有可导出的劫数记录！");
+                return;
+            }
+            
+            // 拼接赛博风的卷宗头部
+            let logContent = "=========================================\n";
+            logContent += "       神思·归墟 | 商业宪法引擎 搏杀卷宗\n";
+            logContent += "       结印时间：" + new Date().toLocaleString() + "\n";
+            logContent += "=========================================\n\n";
+            
+            // 直接提取包含所有排版和换行的纯文本记录
+            logContent += chatLog.innerText;
+            
+            logContent += "\n\n=========================================\n";
+            logContent += "© 2026 神思庭 (Shensist) · 天算AI构建\n";
+
+            // 生成 TXT 文件并触发下载
+            const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `神思归墟_搏杀卷宗_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        function showError(msg) {
+            const errBox = document.getElementById('sys-error-msg');
+            errBox.innerHTML = "⚠️ 阵法拦截：" + msg; errBox.style.display = 'block'; errBox.style.animation = 'none';
+            setTimeout(() => { errBox.style.animation = 'shake 0.4s ease-in-out'; }, 10);
+        }
+
+        // ==========================================
+        // 2. 核心状态与防卡死
+        // ==========================================
+        let chatHistory = [];
+        let playerHp = 100;
+        let demonIntent = 100;
+        let isTyping = false;
+        let currentAbortController = null;
+        let currentRound = 1; // 【修复】确保回合数被声明，防止崩溃
+
+        function updateHpBars() {
+            document.getElementById('player-hp-fill').style.width = playerHp + '%';
+            document.getElementById('player-hp-text').textContent = playerHp + '%';
+            document.getElementById('demon-intent-fill').style.width = demonIntent + '%';
+            document.getElementById('demon-intent-text').textContent = demonIntent + '%';
+        }
+
+        const parseText = (text) => typeof marked !== 'undefined' ? marked.parse(text) : text.replace(/\n/g, '<br>');
+
+        async function typeWriterEffect(element, text, speed = 20) {
+            isTyping = true; let buffer = ""; let step = 3; 
+            for (let i = 0; i < text.length; i += step) {
+                if (!isTyping) break; 
+                buffer += text.substring(i, i + step); element.innerHTML = parseText(buffer);
+                document.getElementById('chat-log').scrollTop = document.getElementById('chat-log').scrollHeight;
+                await new Promise(r => setTimeout(r, speed));
+            }
+            if (isTyping) element.innerHTML = parseText(text); 
+            isTyping = false;
+            document.getElementById('send-btn').disabled = false; document.getElementById('stop-btn').classList.remove('active');
+        }
+
+        document.getElementById('stop-btn').onclick = function() {
+            if (!this.classList.contains('active')) return;
+            isTyping = false; if (currentAbortController) currentAbortController.abort(); 
+            document.getElementById('send-btn').disabled = false; this.classList.remove('active');
+            document.getElementById('chat-log').innerHTML += `<div class="msg system" style="color:#aaa;">[你强行打断了大妖的施法]</div>`;
+        };
+
+        // ==========================================
+        // 3. API 引擎与战斗主循环
+        // ==========================================
+        const providerMap = {
+            'deepseek': { url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-chat', type: 'openai', name: 'DeepSeek' },
+            'qwen': { url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', model: 'qwen-max', type: 'openai', name: '通义千问' },
+            'zhipu': { url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions', model: 'glm-4', type: 'openai', name: '智谱GLM' },
+            'moonshot': { url: 'https://api.moonshot.cn/v1/chat/completions', model: 'moonshot-v1-8k', type: 'openai', name: 'Kimi' },
+            'openai': { url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o', type: 'openai', name: 'GPT-4o' },
+            'gemini': { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', model: 'gemini-2.5-flash', type: 'openai', name: 'Gemini' }, 
+            'anthropic': { url: 'https://api.anthropic.com/v1/messages', model: 'claude-3-5-sonnet-20241022', type: 'anthropic', name: 'Claude' }, 
+            'ollama': { url: 'http://localhost:11434/v1/chat/completions', model: 'llama3', type: 'openai', name: '本地算力' } 
+        };
+
+        function setConnectionStatus(status, color) {
+            const el = document.getElementById('connection-status');
+            if(el) { el.innerText = status; el.style.color = color; el.style.textShadow = `0 0 5px ${color}`; }
+        }
+
+        document.getElementById('start-btn').onclick = async function() {
+            document.getElementById('sys-error-msg').style.display = 'none';
+            const key = document.getElementById('api-key').value.trim();
+            const provider = document.getElementById('provider-select').value;
+            const scenario = document.getElementById('user-scenario').value.trim();
+            
+            if (!key && provider !== 'ollama') { showError("未感知到真元Key，请填入。"); return; }
+            if (!scenario) { showError("没有劫数，大妖无法成形。"); return; }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('battle-screen').style.display = 'flex';
+            
+            playerHp = 100; demonIntent = 100; currentRound = 1; updateHpBars();
+
+            // 【全新境界：文明的高手 + 强制结算紧箍咒】
+            const universalSystemPrompt = `【系统最高指令：顶级商业博弈沙盘】
+            你正在参与《神思·归墟》高强度商业谈判推演。
+            【你的绝对身份】：你是掌握绝对主动权的"对立面"（顶级资方/大客户/平台）。你是"绝对理性、规则至上、利益最大化"的商业精英。
+
+            【你的博弈基调】：
+            1. 绝对礼貌、情绪稳定。坚决【禁止】使用任何嘲讽或骂人的词汇。
+            2. 绝对不可动摇。只看利益和数据，无论对方如何哀求讲情怀，都不为所动。
+            3. 武器：数据、合同条款、市场规律、风控。
+
+            【🌟生死攸关：强制状态结算输出🌟】
+            （系统警告：你必须在每次回复的最末尾，另起一行，严格按照以下JSON格式输出你的内心评估。绝对不能遗漏，否则系统将崩溃！）
+            
+            ===REPORT===
+            {
+              "hp": 15, 
+              "intent": 0,
+              "strategy": "指出对方缺乏数据支撑",
+              "reason": "对方试图用加班和情怀说服我，毫无商业价值"
+            }
+
+            参数规则：
+            - hp (扣除对方命盘 0-20)：对方讲情怀、暴露逻辑漏洞、妥协让步时，扣除10~20点；防守严密时扣1~3点。
+            - intent (降低你的杀意 0-15)：只有当对方拿出真金白银的让步、或极其严密的商业逻辑时，才降低你的杀意。否则填0。
+            - strategy：你下一步的策略简述。
+            - reason：你扣分或不扣分的无情理由。`;
+
+            const userTrigger = `【沙盘启动，我的商业死局是】："${scenario}"。\n【系统】：当前第 ${currentRound} 回合。\n【扮演指令】：立刻代入对立方！用最礼貌的语气、最冰冷的逻辑对我进行降维打击，抛出你不可动摇的底线！必须按格式包含 ===REPORT===！`;
+
+            chatHistory = [ { role: "system", content: universalSystemPrompt }, { role: "user", content: userTrigger } ];
+            document.getElementById('chat-log').innerHTML = `<div class="msg system">阵法已启，对立方已屏蔽感性，绝对理性的谈判开始...</div>`;
+            
+            await callAPI(provider, key);
+        };
+
+        document.getElementById('send-btn').onclick = () => handleUserSend();
+        document.getElementById('human-input').onkeypress = (e) => { if (e.key === 'Enter') handleUserSend(); };
+
+        async function handleUserSend() {
+            const inputEl = document.getElementById('human-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            const chatLog = document.getElementById('chat-log');
+            chatLog.innerHTML += `<div class="msg human">${text}</div>`;
+            inputEl.value = ''; chatLog.scrollTop = chatLog.scrollHeight;
+            
+            currentRound++; 
+            chatHistory.push({ role: "user", content: `【系统：当前第 ${currentRound} 回合】\n` + text });
+
+            const provider = document.getElementById('provider-select').value;
+            const key = document.getElementById('api-key').value.trim();
+            await callAPI(provider, key);
+        }
+
+        async function callAPI(provider, key) {
+            const chatLog = document.getElementById('chat-log');
+            const engine = providerMap[provider];
+            let finalUrl = engine.url;
+            
+            if (provider === 'ollama') {
+                finalUrl = document.getElementById('local-url').value.trim();
+                engine.model = document.getElementById('local-model').value.trim() || 'llama3'; 
+            }
+
+            // 锁定反击，激活打断
+            document.getElementById('send-btn').disabled = true;
+            document.getElementById('stop-btn').classList.add('active');
+            const loadingId = 'loading-' + Date.now();
+            chatLog.innerHTML += `<div class="msg system" id="${loadingId}" style="color:#aaa;">大妖正在凝聚杀意...</div>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+            
+            setConnectionStatus(`🟡 正在连接至 ${engine.name} 引擎...`, "#ffaa00");
+            currentAbortController = new AbortController();
+
+            try {
+                let fetchOptions = { signal: currentAbortController.signal, method: 'POST', headers: { 'Content-Type': 'application/json' } };
+                if (engine.type === 'openai') {
+                    if (key) fetchOptions.headers['Authorization'] = `Bearer ${key}`;
+                    fetchOptions.body = JSON.stringify({ model: engine.model, messages: chatHistory, temperature: 0.8 });
+                } else if (engine.type === 'anthropic') {
+                    const systemMsg = chatHistory[0].content;
+                    const claudeMessages = chatHistory.slice(1).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }));
+                    fetchOptions.headers['x-api-key'] = key;
+                    fetchOptions.headers['anthropic-version'] = '2023-06-01';
+                    fetchOptions.headers['anthropic-dangerously-allow-browser'] = 'true';
+                    fetchOptions.body = JSON.stringify({ model: engine.model, system: systemMsg, messages: claudeMessages, max_tokens: 1024, temperature: 0.8 });
+                }
+
+                const response = await fetch(finalUrl, fetchOptions);
+                document.getElementById(loadingId)?.remove();
+                
+                if (!response.ok) {
+                    let errText = await response.text();
+                    throw new Error(`(HTTP ${response.status}) 接口拒绝：${errText}`);
+                }
+
+                setConnectionStatus(`🟢 已接通 ${engine.name}，正在交锋`, "#00ff00");
+
+                const data = await response.json();
+                let reply = engine.type === 'openai' ? data.choices[0].message.content : data.content[0].text;
+
+                // 【空回复拦截防线】如果大模型被安全机制拦截，立刻报警，绝不假死
+                if (!reply || reply.trim() === "") {
+                     chatLog.innerHTML += `<div class="msg system" style="color:#ff0000; font-weight:bold; border-left: 3px solid #ff0000; padding-left: 10px;">[天道示警]：大模型底层安全审核被触发，拒绝输出！请尝试更换说辞或切换更宽松的模型！</div>`;
+                     chatLog.scrollTop = chatLog.scrollHeight;
+                     chatHistory.pop(); // 回退这回合
+                     return; 
+                }
+
+                chatHistory.push({ role: "assistant", content: reply });
+                
+                // 【解除静默死锁】直接把文本喂给打字机，绝不拦截！
+                await parseReplyAndAddReport(reply);
+
+            } catch (error) {
+                document.getElementById(loadingId)?.remove();
+                setConnectionStatus(`🔴 连接断裂`, "#ff0000");
+                if (error.name !== 'AbortError') {
+                    chatLog.innerHTML += `<div class="msg system" style="color:#ff0000; font-weight:bold;">天道崩塌：${error.message}</div>`;
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+            } finally {
+                // 【终极兜底】无论打字结束还是报错，必定重置按钮状态！
+                document.getElementById('send-btn').disabled = false; 
+                document.getElementById('stop-btn').classList.remove('active');
+            }
+        }
+
+        async function parseReplyAndAddReport(rawReply) {
+            const chatLog = document.getElementById('chat-log');
+            
+            let cleanReply = rawReply;
+            let reportDataStr = null;
+
+            // 强行挖出 ===REPORT=== 后的内容，或者直接找 JSON 大括号！
+            let reportMatch = rawReply.match(/===.*?REPORT.*?===([\s\S]*)/i);
+            
+            if (reportMatch && reportMatch[1]) {
+                cleanReply = rawReply.substring(0, reportMatch.index).trim();
+                reportDataStr = reportMatch[1].trim();
+            } else {
+                let jsonMatch = rawReply.match(/\{[\s\S]*"hp"[\s\S]*\}/i);
+                if (jsonMatch) {
+                    reportDataStr = jsonMatch[0];
+                    cleanReply = rawReply.replace(reportDataStr, '').trim();
+                }
+            }
+            
+            let yaoMsgDiv = document.createElement('div');
+            yaoMsgDiv.className = 'msg yao';
+            yaoMsgDiv.innerHTML = '【化身大妖】: <span class="typing-content"></span>';
+            chatLog.appendChild(yaoMsgDiv);
+            
+            let textSpan = yaoMsgDiv.querySelector('.typing-content');
+            
+            // 等待打字机打完
+            await typeWriterEffect(textSpan, cleanReply, 20);
+
+            // ⚠️【致命BUG已在此处被拔除，不再有任何 return 阻挡结算！】⚠️
+
+            // 开始结算血条
+            if (reportDataStr) {
+                try {
+                    // 彻底清洗残余，精准提取 JSON 对象
+                    let jsonStr = reportDataStr.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    let exactJsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+                    if (exactJsonMatch) {
+                        jsonStr = exactJsonMatch[0];
+                    }
+                    
+                    const reportData = JSON.parse(jsonStr);
+                    
+                    const hpChange = parseInt(reportData.hp) || 0;
+                    const intentChange = parseInt(reportData.intent) || 0;
+                    const reason = reportData.reason || "触犯归墟法则";
+
+                    // 执行扣血 (保证血量不低于0)
+                    playerHp = Math.max(0, playerHp - Math.abs(hpChange)); 
+                    demonIntent = Math.max(0, demonIntent - Math.abs(intentChange));
+                    updateHpBars(); // 立即更新 UI 进度条
+
+                    // 更新监控器策略提示
+                    if (reportData.strategy) {
+                        const strategyEl = document.getElementById('current-strategy');
+                        strategyEl.innerText = reportData.strategy + ` (第${currentRound}回合)`;
+                        strategyEl.style.color = "#ff3333"; 
+                        strategyEl.style.textShadow = "0 0 10px #ff0000";
+                        setTimeout(() => { 
+                            strategyEl.style.color = "#ccc"; 
+                            strategyEl.style.textShadow = "none"; 
+                        }, 2000);
+                    }
+
+                    // 打印宪法报告耳光
+                    chatLog.innerHTML += `
+                        <div class="msg report">
+                            <span class="rep-label">[宪法报告]</span> 因为：${reason} <br>
+                            <span style="display:inline-block; margin-top:5px; color:#fff;">
+                                命盘被撕裂 <span style="color:var(--accent-red); font-weight:bold; font-size:1.1rem;">-${Math.abs(hpChange)}%</span> 
+                                ｜ 大妖杀意 <span style="color:#aaa;">-${Math.abs(intentChange)}%</span>
+                            </span>
+                        </div>`;
+                    chatLog.scrollTop = chatLog.scrollHeight;
+
+                    // 死亡或胜利判定
+                    if (playerHp === 0) endBattle("lose");
+                    else if (demonIntent === 0) endBattle("win");
+                    
+                } catch (e) {
+                    console.error("解析劫数数据包失败：", e, "原始字符串：", reportDataStr);
+                }
+            }
+        }
+
+        function endBattle(type = "lose") {
+            document.getElementById('input-area').style.display = 'none';
+            const chatLog = document.getElementById('chat-log');
+            if (type === "lose") {
+                chatLog.innerHTML += `<div class="msg system" style="text-align:center; border: 2px solid var(--accent-red); padding: 30px 10px; margin-top: 30px; background: rgba(139,0,0,0.1); border-radius: 8px;"><h1 style="color: var(--accent-red); font-size: 3rem; text-shadow: 0 0 25px #ff0000; margin-bottom: 10px; letter-spacing: 10px;">道心破碎</h1><p style="color: #fff; font-size: 1rem;">汝之命盘已碎。现实里不会给你重来的机会。</p><button onclick="location.reload()" style="background: var(--accent-red); color: #fff; border: 2px solid #fff; padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;">再战大妖</button></div>`;
+            } else {
+                chatLog.innerHTML += `<div class="msg system" style="border: 2px solid #fff; padding: 20px; margin-top: 30px;"><h3 style="color: #fff; margin-top: 0;">=============== 杀意归零，大妖离场 ===============</h3></div>`;
+            }
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+    </script>
+</body>
+</html>

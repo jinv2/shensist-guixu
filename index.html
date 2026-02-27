@@ -21,25 +21,25 @@
    ========================================== */
 
 body {
-    /* 核心修改：调低黑雾浓度！从 0.95 降到 0.6~0.8，让大妖显出真身！ */
-    background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing.png');
-    
-    background-color: #050505;
-    background-size: cover;
-    background-position: center top;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    
-    /* 启动幻阵背景呼吸轮播动画 */
-    animation: guixu-bg-slider 30s infinite alternate ease-in-out;
-    
-    color: var(--text-main);
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0; padding: 0;
-    display: flex; flex-direction: column; align-items: center;
-    height: 100vh; overflow: hidden;
-    position: relative;
-}
+            /* 保持幻阵背景不变 */
+            background-image: linear-gradient(rgba(5, 5, 5, 0.6), rgba(5, 5, 5, 0.8)), url('./shanhaijing.png');
+            background-color: #050505;
+            background-size: cover;
+            background-position: center top;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            animation: guixu-bg-slider 30s infinite alternate ease-in-out;
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            
+            /* 🌟 核心破壁：将锁死的 height 改为 min-height，并允许整体上下滑动！ */
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            overflow-y: auto; /* 彻底解除封印，鼠标和手指可以滑动了 */
+            position: relative;
+        }
 
 /* 归墟三妖图呼吸交替动画关键帧 */
 @keyframes guixu-bg-slider {
@@ -171,7 +171,15 @@ header,
             font-family: 'Courier New', Courier, monospace;
         }
         
-        #setup-screen { overflow-y: auto; max-height: calc(100vh - 140px); margin-top: 20px; margin-bottom: 20px; padding-right: 10px; }
+        /* 🌟 解除内部空间的挤压限制，让它自然向下舒展 */
+        #setup-screen { 
+            overflow: visible; 
+            height: auto; 
+            margin-top: 20px; 
+            margin-bottom: 20px; 
+            padding-right: 10px; 
+            padding-bottom: 100px; /* 给底部版权留出空间 */
+        }
         #setup-screen::-webkit-scrollbar { width: 4px; }
         #setup-screen::-webkit-scrollbar-thumb { background: var(--accent-red); }
 
@@ -354,27 +362,23 @@ header,
             /* 7. 右上角重置按钮移位 */
             #back-to-setup { top: 10px; right: 10px; padding: 3px 8px; font-size: 0.75rem; }
             
-            /* 8. 修复顶部大盘走火入魔（重叠错位）问题 */
+            /* 8. 修复顶部大盘走火入魔，极致压缩空间 */
+            header { padding: 5px 0 !important; } /* 缩小头部上下留白 */
             #dashboard-container {
-                flex-direction: column; /* 核心：从横向并排改为纵向堆叠 */
-                gap: 15px; /* 增加上下模块的间距 */
-                padding: 15px 10px; /* 缩小整体内边距 */
+                flex-direction: column; 
+                gap: 5px; /* 缩小模块间距 */
+                padding: 10px 5px !important; 
+                margin: 5px auto !important;
             }
-            #dashboard-container > div {
-                width: 100%; /* 让每个模块独占一行 */
-            }
-            /* 修改中间"实时防御"模块的边框，去掉左右虚线，改为上下虚线分割 */
+            #dashboard-container > div { width: 100%; }
             #dashboard-container > div:nth-child(2) {
                 border-left: none !important; 
                 border-right: none !important;
                 border-top: 1px dashed rgba(255,0,0,0.3); 
                 border-bottom: 1px dashed rgba(255,0,0,0.3);
-                padding: 15px 0 !important;
+                padding: 8px 0 !important;
             }
-            /* 稍微缩小手机端命盘数字的字号，防止溢出屏幕 */
-            #shattered-hearts-count {
-                font-size: 1.8rem !important;
-            }
+            #shattered-hearts-count { font-size: 1.5rem !important; }
         }
     </style>
 </head>

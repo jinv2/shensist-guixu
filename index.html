@@ -443,7 +443,7 @@ header,
     const allowedDomains = ['localhost', '127.0.0.1', 'shensist.top', 'guixu.shensist.top'];
     const currentDomain = window.location.hostname;
     
-    if (!allowedDomains.includes(currentDomain) && currentDomain !== "") {
+    if (!allowedDomains.includes(currentDomain) && !currentDomain.endsWith('.netlify.app') && currentDomain !== "") {
         document.body.innerHTML = `
             <div style="background:#000; color:#ff0000; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:monospace; text-align:center;">
                 <h1 style="font-size:4rem; text-shadow:0 0 20px red;">道心破碎 · 阵法反噬</h1>

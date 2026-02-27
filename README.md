@@ -50,7 +50,10 @@
 1. **本地运行**：克隆本仓库，直接在浏览器中双击打开 `index.html` 即可运行。
 2. [cite_start]**云端托管**：将本仓库一键拖拽部署至 `Netlify` 或 `Vercel` [cite: 14, 16]。
 3. **入阵方式**：打开网页 -> 勾选现世劫数 -> 填入你的 API Key -> 点击**【再战大妖】**。
-
+4. ⚠️ 使用 Ollama 本地算力必读：
+你必须设置环境变量允许跨域，否则浏览器将无法连接！
+Ubuntu/Linux 终端启动命令：OLLAMA_ORIGINS="*" ollama serve
+Windows 系统请在环境变量中新建 OLLAMA_ORIGINS，值为 *，然后重启 Ollama。
 ---
 
 ## 📜 现世劫数剧本库 (首发)

@@ -315,6 +315,45 @@ header,
         .stat-value.white {
             color: #f0f0f0;
         }
+
+        /* ==========================================
+           📱 移动端（手机）专属适配阵法
+           ========================================== */
+        @media (max-width: 768px) {
+            /* 1. 顶部标题栏压缩 */
+            header { padding: 10px 0; gap: 10px; }
+            .main-logo-container { width: 40px; }
+            h1 { font-size: 1.5rem; letter-spacing: 2px; }
+            .slogan { font-size: 0.75rem; letter-spacing: 0; }
+
+            /* 2. 主体容器宽度释放 */
+            header, #setup-screen, #battle-screen { width: 95%; }
+            #battle-screen { height: calc(100vh - 120px); padding-bottom: 60px; }
+
+            /* 3. 宪法监视器排版重构（防止文字挤压） */
+            #constitution-monitor { padding: 10px; }
+            .monitor-title { font-size: 0.95rem; text-align: center; }
+            .monitor-row { flex-direction: column; margin-bottom: 10px; }
+            .monitor-label { width: 100%; border-bottom: 1px solid rgba(204, 0, 0, 0.3); padding-bottom: 3px; margin-bottom: 5px; }
+            .monitor-value { font-size: 0.85rem; }
+
+            /* 4. 死亡血条压缩 */
+            .hp-label { width: 70px; font-size: 0.75rem; }
+            .hp-bar-bg { margin: 0 5px; }
+            .hp-value { font-size: 0.9rem; width: 40px; }
+
+            /* 5. 聊天记录与输入框紧凑化 */
+            #chat-log { padding: 10px; font-size: 0.9rem; }
+            .msg.report { font-size: 0.8rem; padding: 10px; }
+            #input-area { gap: 5px; }
+            #input-area button { min-width: 60px; padding: 0 10px; font-size: 0.9rem; }
+
+            /* 6. 背景树枝弱化（防止在小屏幕上遮挡重要文字） */
+            #shanhai-branch { width: 100vw; height: 35vh; opacity: 0.4; }
+            
+            /* 7. 右上角重置按钮移位 */
+            #back-to-setup { top: 10px; right: 10px; padding: 3px 8px; font-size: 0.75rem; }
+        }
     </style>
 </head>
 <body>
@@ -399,6 +438,25 @@ header,
 </style>
 
 <script>
+    // 【神思版权防盗死咒：域名白名单校验】
+    // 只有在本地测试 (localhost) 或你的官网 (shensist.top) 才能运行
+    const allowedDomains = ['localhost', '127.0.0.1', 'shensist.top', 'guixu.shensist.top'];
+    const currentDomain = window.location.hostname;
+    
+    if (!allowedDomains.includes(currentDomain) && currentDomain !== "") {
+        document.body.innerHTML = `
+            <div style="background:#000; color:#ff0000; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:monospace; text-align:center;">
+                <h1 style="font-size:4rem; text-shadow:0 0 20px red;">道心破碎 · 阵法反噬</h1>
+                <p style="font-size:1.2rem; color:#aaa; margin-top:20px;">
+                    你所访问的《神思·归墟》为盗版镜像。<br><br>
+                    真正的搏杀，请移步官方正统：<br>
+                    <a href="https://shensist.top" style="color:#ff3333; font-weight:bold; text-decoration:none; font-size:1.5rem;">https://shensist.top</a>
+                </p>
+            </div>
+        `;
+        throw new Error("盗版拦截：未授权的部署域名！");
+    }
+
     // 模拟"道心破碎"总数的缓慢增长
     function updateShatteredHearts() {
         const countEl = document.getElementById('shattered-hearts-count');
